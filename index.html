@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrimsKit Wiki - PvP kits and economy for Minecraft</title>
+<meta name="description" content="TrimsKit is a Fabric mod for Minecraft 26.2 that adds PvP kits and a buy/sell economy. Commands, install guide, operator setup and changelog.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eceef1;
+  --panel: #ffffff;
+  --ink: #1d2128;
+  --muted: #5b6370;
+  --line: #d3d7de;
+  --accent: #0b7d78;
+  --accent-ink: #ffffff;
+  --gold: #a86a00;
+  --code-bg: #e3e6ea;
+  --chat-bg: #23262d;
+  --chat-ink: #e9ecf1;
+  --radius: 4px;
+  --display: "Pixelify Sans", "Courier New", monospace;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1d22;
+    --panel: #24272e;
+    --ink: #e8eaee;
+    --muted: #9aa2af;
+    --line: #373b44;
+    --accent: #4fd1c5;
+    --accent-ink: #10201f;
+    --gold: #f2b84b;
+    --code-bg: #14161a;
+    --chat-bg: #14161a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1d22;
+  --panel: #24272e;
+  --ink: #e8eaee;
+  --muted: #9aa2af;
+  --line: #373b44;
+  --accent: #4fd1c5;
+  --accent-ink: #10201f;
+  --gold: #f2b84b;
+  --code-bg: #14161a;
+  --chat-bg: #14161a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1rem/1.65 var(--body);
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+code, kbd { font-family: var(--mono); font-size: .88em; }
+:not(pre) > code { background: var(--code-bg); padding: .1em .4em; border-radius: var(--radius); }
+
+.layout { display: grid; grid-template-columns: 17rem minmax(0, 1fr); min-height: 100vh; }
+
+/* Sidebar */
+.side {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 1.5rem 1.25rem;
+  background: var(--panel);
+  border-right: 2px solid var(--line);
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: var(--ink); }
+.brand img { width: 44px; height: 44px; border-radius: var(--radius); image-rendering: pixelated; background: var(--code-bg); }
+.brand span { font: 700 1.5rem/1 var(--display); }
+.side nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.side nav a {
+  display: block; padding: .45rem .75rem; text-decoration: none; color: var(--muted);
+  border-left: 3px solid transparent; border-radius: 0 var(--radius) var(--radius) 0;
+  font-weight: 500;
+}
+.side nav a:hover { color: var(--ink); background: var(--code-bg); }
+.side nav a[aria-current="true"] { color: var(--ink); border-left-color: var(--accent); background: var(--code-bg); }
+.side .foot { margin-top: auto; display: grid; gap: .6rem; font-size: .9rem; color: var(--muted); }
+.btn {
+  font: 600 .95rem var(--body); cursor: pointer;
+  padding: .55rem .9rem; border-radius: var(--radius);
+  border: 2px solid var(--line); background: transparent; color: var(--ink);
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+
+.menu-btn { display: none; }
+
+/* Main */
+main { padding: 3rem clamp(1.25rem, 5vw, 4rem) 5rem; max-width: 62rem; }
+.hero { padding-bottom: 2.5rem; border-bottom: 2px solid var(--line); }
+.hero h1 { font: 700 clamp(3rem, 9vw, 5.5rem)/.95 var(--display); margin: 0 0 1rem; letter-spacing: -.01em; }
+.hero p.lead { font-size: 1.2rem; max-width: 40rem; margin: 0 0 1.5rem; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+.chip { font: 500 .85rem var(--mono); padding: .25rem .6rem; border: 2px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+
+section { padding-top: 3rem; }
+h2 { font: 700 2rem/1.1 var(--display); margin: 0 0 1rem; }
+h2 a, h3 a { color: inherit; text-decoration: none; }
+h2 a:hover::after, h3 a:hover::after { content: " #"; color: var(--muted); }
+h3 { font: 700 1.35rem/1.2 var(--display); margin: 2rem 0 .75rem; }
+p, li { max-width: 46rem; }
+
+.facts { width: 100%; border-collapse: collapse; background: var(--panel); border: 2px solid var(--line); }
+.facts th, .facts td { text-align: left; padding: .65rem 1rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.facts th { width: 11rem; color: var(--muted); font-weight: 500; }
+.facts tr:last-child > * { border-bottom: 0; }
+
+.features { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.features li { background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; max-width: none; }
+.features strong { display: block; font: 700 1.1rem var(--display); margin-bottom: .25rem; }
+.features span { color: var(--muted); }
+
+/* Commands */
+.filter { width: 100%; max-width: 24rem; padding: .6rem .8rem; margin-bottom: 1rem; font: inherit; color: var(--ink); background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); }
+.cmds { display: grid; gap: .75rem; }
+.cmd {
+  display: grid; grid-template-columns: minmax(9rem, 14rem) 1fr auto; gap: 1rem; align-items: center;
+  background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); padding: .75rem 1rem;
+}
+.cmd[hidden] { display: none; }
+.cmd .name {
+  font: 600 .95rem var(--mono); background: var(--chat-bg); color: var(--chat-ink);
+  padding: .4rem .7rem; border-radius: var(--radius); overflow-wrap: anywhere;
+}
+.cmd .name b { color: #8be9a0; font-weight: 600; }
+.cmd p { margin: 0; }
+.cmd .btn { padding: .35rem .7rem; font-size: .85rem; }
+.empty { color: var(--muted); }
+
+.note { background: var(--panel); border: 2px solid var(--line); border-left: 6px solid var(--gold); border-radius: var(--radius); padding: .9rem 1.1rem; max-width: 46rem; }
+.note p { margin: 0; }
+
+ol.steps { padding-left: 1.4rem; }
+ol.steps li { padding-left: .3rem; margin-bottom: .5rem; }
+
+.path { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 1rem 0; font-family: var(--mono); font-size: .9rem; }
+.path span { background: var(--chat-bg); color: var(--chat-ink); padding: .3rem .6rem; border-radius: var(--radius); }
+.path i { color: var(--muted); font-style: normal; }
+
+.log { background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius); padding: 1rem 1.25rem; }
+.log h3 { margin-top: 0; }
+.log ul { margin: .5rem 0 0; padding-left: 1.2rem; }
+.log time { color: var(--muted); font-family: var(--mono); font-size: .9rem; }
+
+footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 2px solid var(--line); color: var(--muted); font-size: .9rem; }
+
+/* Mobile */
+@media (max-width: 54rem) {
+  .layout { grid-template-columns: 1fr; }
+  .side {
+    position: fixed; inset: 0 auto 0 0; width: min(18rem, 85vw); z-index: 20;
+    transform: translateX(-100%); transition: transform .2s ease;
+  }
+  .side.open { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,.5); }
+  .menu-btn { display: inline-flex; position: fixed; top: .75rem; left: .75rem; z-index: 10; background: var(--panel); }
+  main { padding-top: 4.5rem; }
+  .cmd { grid-template-columns: 1fr; gap: .6rem; }
+  .cmd .btn { justify-self: start; }
+  .facts th { width: 8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .side { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="side" id="side" aria-label="Wiki navigation">
+    <a class="brand" href="#top">
+      <img src="https://media.forgecdn.net/avatars/thumbnails/2107/190/256/256/639272440953002638.png" alt="" width="44" height="44" onerror="this.style.visibility='hidden'">
+      <span>TrimsKit</span>
+    </a>
+    <nav aria-label="Sections">
+      <ul id="nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#facts">Quick facts</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#commands">Commands</a></li>
+        <li><a href="#install">Installation</a></li>
+        <li><a href="#operator">Operator and /sfmode</a></li>
+        <li><a href="#changelog">Changelog</a></li>
+        <li><a href="#links">Links</a></li>
+      </ul>
+    </nav>
+    <div class="foot">
+      <a class="btn primary" href="https://www.curseforge.com/minecraft/mc-mods/trimskit">Download</a>
+      <button class="btn" id="theme" type="button" aria-label="Switch between light and dark theme">Switch theme</button>
+    </div>
+  </aside>
+
+  <button class="btn menu-btn" id="menu" type="button" aria-expanded="false" aria-controls="side">Menu</button>
+
+  <main id="top">
+    <header class="hero" id="overview">
+      <h1>TrimsKit</h1>
+      <p class="lead">PvP kits and a buy-and-sell economy for your Minecraft game or server. Easy to use, and built by one developer.</p>
+      <div class="actions">
+        <a class="btn primary" href="https://www.curseforge.com/minecraft/mc-mods/trimskit/files/9196272">Download 1.4.55</a>
+        <a class="btn" href="#commands">See the commands</a>
+      </div>
+      <div class="chips" aria-label="Compatibility">
+        <span class="chip">Minecraft 26.2</span>
+        <span class="chip">Fabric</span>
+        <span class="chip">Client &amp; server</span>
+      </div>
+      <p style="margin-top:1.5rem">The kits aim to replicate the DonutSMP style of PvP, while the economy lets players buy rare items for cheap. It suits any server that wants economy <em>and</em> PvP together.</p>
+    </header>
+
+    <section id="facts">
+      <h2><a href="#facts">Quick facts</a></h2>
+      <table class="facts">
+        <tbody>
+          <tr><th scope="row">Mod name</th><td>TrimsKit</td></tr>
+          <tr><th scope="row">Author</th><td><a href="https://www.curseforge.com/members/p2w_official">P2w_official</a></td></tr>
+          <tr><th scope="row">Latest version</th><td>1.4.55 (Oct 15, 2026)</td></tr>
+          <tr><th scope="row">Minecraft</th><td>26.2</td></tr>
+          <tr><th scope="row">Mod loader</th><td>Fabric</td></tr>
+          <tr><th scope="row">Environment</th><td>Client and server</td></tr>
+          <tr><th scope="row">License</th><td>All Rights Reserved</td></tr>
+          <tr><th scope="row">Categories</th><td>Mods, Addons, Adventure and RPG</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="features">
+      <h2><a href="#features">Features</a></h2>
+      <ul class="features">
+        <li><strong>PvP kits</strong><span>Many powerful kits for fighting other players.</span></li>
+        <li><strong>Economy</strong><span>Buy and sell items for money.</span></li>
+        <li><strong>Random teleport</strong><span>Jump to a random location.</span></li>
+        <li><strong>Commands and menus</strong><span>Most features work through simple commands and GUIs.</span></li>
+      </ul>
+    </section>
+
+    <section id="commands">
+      <h2><a href="#commands">Commands</a></h2>
+      <p>Use <code>/register</code> and <code>/login</code> first. They are required for the economy and other commands.</p>
+      <label for="filter" class="empty">Filter commands</label><br>
+      <input class="filter" id="filter" type="search" placeholder="Try &quot;sell&quot; or &quot;teleport&quot;" autocomplete="off">
+      <div class="cmds" id="cmds">
+        <div class="cmd" data-s="register account create sign up economy"><span class="name"><b>/</b>register</span><p>Create your account. Needed to use the economy and other commands.</p><button class="btn copy" type="button" data-copy="/register">Copy</button></div>
+        <div class="cmd" data-s="login account sign in economy"><span class="name"><b>/</b>login</span><p>Log in to your account.</p><button class="btn copy" type="button" data-copy="/login">Copy</button></div>
+        <div class="cmd" data-s="sell money economy items"><span class="name"><b>/</b>sell</span><p>Sell items for money.</p><button class="btn copy" type="button" data-copy="/sell">Copy</button></div>
+        <div class="cmd" data-s="buy money economy items rare"><span class="name"><b>/</b>buy</span><p>Buy items with money.</p><button class="btn copy" type="button" data-copy="/buy">Copy</button></div>
+        <div class="cmd" data-s="kits pvp fight"><span class="name"><b>/</b>kits</span><p>Open the PvP kits to fight other players.</p><button class="btn copy" type="button" data-copy="/kits">Copy</button></div>
+        <div class="cmd" data-s="adin admin kits op"><span class="name"><b>/</b>adin kits</span><p>Admin kits. Written exactly as it appears on the CurseForge page.</p><button class="btn copy" type="button" data-copy="/adin kits">Copy</button></div>
+        <div class="cmd" data-s="rtp random teleport"><span class="name"><b>/</b>rtp</span><p>Teleport somewhere random.</p><button class="btn copy" type="button" data-copy="/rtp">Copy</button></div>
+        <div class="cmd" data-s="sfmode operator op special"><span class="name"><b>/</b>sfmode</span><p>Operator command. See <a href="#operator">Operator and /sfmode</a> for setup.</p><button class="btn copy" type="button" data-copy="/sfmode">Copy</button></div>
+      </div>
+      <p class="empty" id="none" hidden>No command matches that search.</p>
+    </section>
+
+    <section id="install">
+      <h2><a href="#install">Installation</a></h2>
+      <ol class="steps">
+        <li>Install the <strong>Fabric</strong> loader for Minecraft <strong>26.2</strong>.</li>
+        <li>Download <code>trimskits-1.4.55.jar</code> from the <a href="https://www.curseforge.com/minecraft/mc-mods/trimskit/files/9196272">CurseForge files page</a>.</li>
+        <li>Put the <code>.jar</code> in the <code>mods</code> folder of your Minecraft folder (client) or your server folder.</li>
+        <li>Launch the game or server.</li>
+      </ol>
+      <p>TrimsKit runs on both client and server.</p>
+    </section>
+
+    <section id="operator">
+      <h2><a href="#operator">Operator and /sfmode</a></h2>
+      <p>To become a server operator or use <code>/sfmode</code>, configure the <code>OPS.json</code> file:</p>
+      <ol class="steps">
+        <li>Launch the game once, then quit.</li>
+        <li>Open your Minecraft folder.</li>
+        <li>Go to the <code>configs</code> folder and open <code>OPS.json</code>.</li>
+        <li>Edit it and set anything you want.</li>
+      </ol>
+      <div class="path" aria-label="File location">
+        <span>minecraft</span><i>/</i><span>configs</span><i>/</i><span>OPS.json</span>
+      </div>
+      <div class="note"><p>If you can't find <code>OPS.json</code>, launch the game once and check again. The file is created on first launch.</p></div>
+    </section>
+
+    <section id="changelog">
+      <h2><a href="#changelog">Changelog</a></h2>
+      <div class="log">
+        <h3>1.4.55 <time datetime="2026-10-15">Oct 15, 2026</time></h3>
+        <ul>
+          <li>Release for Minecraft 26.2 on Fabric.</li>
+          <li>Added the <code>OPS.json</code> configuration file for becoming a server operator and using <code>/sfmode</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="links">
+      <h2><a href="#links">Links</a></h2>
+      <ul>
+        <li><a href="https://www.curseforge.com/minecraft/mc-mods/trimskit">TrimsKit on CurseForge</a></li>
+        <li><a href="https://www.curseforge.com/minecraft/mc-mods/trimskit/files/9196272">Latest file (1.4.55)</a></li>
+        <li><a href="https://www.curseforge.com/members/p2w_official">Author: P2w_official</a></li>
+      </ul>
+    </section>
+
+    <footer>TrimsKit is made by P2w_official. Not affiliated with Mojang or Microsoft.</footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+
+  /* Theme toggle, remembered when storage is available */
+  try {
+    var saved = localStorage.getItem("trimskit-theme");
+    if (saved) root.setAttribute("data-theme", saved);
+  } catch (e) {}
+  document.getElementById("theme").addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark" ||
+      (!root.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = dark ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("trimskit-theme", next); } catch (e) {}
+  });
+
+  /* Mobile menu */
+  var side = document.getElementById("side");
+  var menu = document.getElementById("menu");
+  function setMenu(open) {
+    side.classList.toggle("open", open);
+    menu.setAttribute("aria-expanded", String(open));
+  }
+  menu.addEventListener("click", function () { setMenu(!side.classList.contains("open")); });
+  side.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
+
+  /* Highlight current section in the sidebar */
+  var links = Array.prototype.slice.call(document.querySelectorAll("#nav a"));
+  var map = {};
+  links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          links.forEach(function (a) { a.removeAttribute("aria-current"); });
+          var a = map[en.target.id];
+          if (a) a.setAttribute("aria-current", "true");
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    Object.keys(map).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+
+  /* Command filter */
+  var filter = document.getElementById("filter");
+  var cmds = Array.prototype.slice.call(document.querySelectorAll(".cmd"));
+  var none = document.getElementById("none");
+  filter.addEventListener("input", function () {
+    var q = filter.value.trim().toLowerCase().replace(/^\//, "");
+    var shown = 0;
+    cmds.forEach(function (c) {
+      var text = (c.textContent + " " + c.getAttribute("data-s")).toLowerCase();
+      var match = !q || text.indexOf(q) !== -1;
+      c.hidden = !match;
+      if (match) shown++;
+    });
+    none.hidden = shown !== 0;
+  });
+
+  /* Copy buttons */
+  document.getElementById("cmds").addEventListener("click", function (e) {
+    var btn = e.target.closest(".copy");
+    if (!btn) return;
+    var text = btn.getAttribute("data-copy");
+    function done() {
+      var old = btn.textContent;
+      btn.textContent = "Copied";
+      setTimeout(function () { btn.textContent = old; }, 1200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () {});
+    } else {
+      var t = document.createElement("textarea");
+      t.value = text; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); done(); } catch (err) {}
+      document.body.removeChild(t);
+    }
+  });
+})();
+</script>
+</body>
+</html>
